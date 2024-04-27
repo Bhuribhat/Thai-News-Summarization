@@ -5,8 +5,10 @@ ssh -Y  bratanas@tara.nstda.or.th
 ```
 
 ## Main working directory
-cd /tarafs/data/project/proj0183-ATS/finetune/lanta-finetune
 
+```bash
+cd /tarafs/data/project/proj0183-ATS/finetune/lanta-finetune
+```
 
 ## Upload & Download a file
 
@@ -22,7 +24,7 @@ scp -r bratanas@tara.nstda.or.th:<destination_path> <source_path>
 
 ## Submit a job
 
-A job must be submitted in main work directory
+A job must be submitted in main working directory
 
 ```bash
 sbatch <script_file>.sh

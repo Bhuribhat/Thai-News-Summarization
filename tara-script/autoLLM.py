@@ -6,8 +6,9 @@ import time
 import torch
 import pandas as pd
 from transformers import (
+    BitsAndBytesConfig,
     AutoModelForCausalLM,
-    AutoTokenizer
+    AutoTokenizer,
 )
 os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
 print("Import completed")
@@ -15,18 +16,27 @@ print("Import completed")
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"using {DEVICE} device")
 
+# Tara working directory
+main_dir = "/tarafs/data/project/proj0183-ATS/finetune/lanta-finetune"
+
 # Read dataset
-df = pd.read_csv('sample_dataset.csv')
+df = pd.read_csv(f'{main_dir}/pattern-proj/sample_dataset.csv')
 df["body"] = df["body"].str[14:-4]
 print("Load dataset completed")
 
 # Load model
-model_name_or_path = "/tarafs/data/project/proj0183-ATS/finetune/lanta-finetune/SeaLLM-7B-v2"
+model_name_or_path = f"{main_dir}/SeaLLM-7B-v2"
 
 def load_LLM_and_tokenizer():
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_use_double_quant=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.bfloat16
+    )
     model = AutoModelForCausalLM.from_pretrained(
         model_name_or_path,
-        load_in_4bit=True,
+        quantization_config=bnb_config,
         local_files_only=True,
         device_map="auto",
         torch_dtype=torch.bfloat16,
@@ -81,7 +91,8 @@ def generate_summarization(text: str):
                 top_p=0.9,
                 repetition_penalty=1.1,
                 do_sample=True,
-                use_cache=False
+                use_cache=False,
+                pad_token_id=tokenizer.eos_token_id
             )
         encoded_answer = output_tokens[0][len(batch["input_ids"][0]):]
         response = tokenizer.decode(encoded_answer, skip_special_tokens=True)
