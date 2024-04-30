@@ -119,4 +119,4 @@ for i, (index, data_point) in enumerate(df.iterrows()):
 
 # Save output to json file
 with open(f"{main_dir}/pattern-proj/summarization_by_SeaLLMs-7B-v2.json", "w", encoding='utf8') as file:
-    json.dump(label_dataset, file)
+    json.dump(label_dataset, file, ensure_ascii=False)
