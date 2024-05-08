@@ -1,4 +1,5 @@
 import torch
+from torch.nn import DataParallel
 from datasets import  load_from_disk
 from transformers import AutoTokenizer
 from transformers import BitsAndBytesConfig
@@ -28,14 +29,27 @@ bnb_config = BitsAndBytesConfig(
     bnb_4bit_quant_type="nf4",
     bnb_4bit_compute_dtype=torch.bfloat16,
 )
-tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
+tokenizer = AutoTokenizer.from_pretrained(
+    model_checkpoint,
+    padding_side="left",
+    add_eos_token=False,
+    add_bos_token=False,
+)
+tokenizer.pad_token = tokenizer.eos_token
 model = AutoModelForCausalLM.from_pretrained(
     model_checkpoint,
-    quantization_config=bnb_config
+    quantization_config=bnb_config,
+    local_files_only=True,
+    device_map="auto",
+    torch_dtype=torch.bfloat16
 )
 model.config.use_cache = False
-model = prepare_model_for_kbit_training(model)
 print(f"Completed loading tokenizer and model")
+
+if torch.cuda.device_count() > 1:
+    print("Let's use", torch.cuda.device_count(), "GPUs!")
+    # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
+    model = DataParallel(model).module
 
 # QLoRA Adapter
 peft_config = LoraConfig(
@@ -46,6 +60,8 @@ peft_config = LoraConfig(
     lora_dropout=0.1,
     target_modules=["q_proj", "k_proj", "v_proj"]
 )
+model.gradient_checkpointing_enable()
+model = prepare_model_for_kbit_training(model)
 model = get_peft_model(model, peft_config)
 model.print_trainable_parameters()
 

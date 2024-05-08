@@ -10,4 +10,4 @@ source /tarafs/data/project/proj0183-ATS/finetune/miniconda3/bin/activate
 conda activate finetune
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
-python3 pattern-proj/seallmv2.5-causal-qlora-trainer.py
+python3 pattern-proj/seallmv2-causal-qlora-trainer.py
