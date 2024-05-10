@@ -165,3 +165,6 @@ cython_debug/
 receipt/
 temp/docs/
 # asset/data/*/docs/
+
+# Temp files
+test*
