@@ -21,7 +21,6 @@ main_dir = "/tarafs/data/project/proj0183-ATS/finetune/lanta-finetune"
 
 # Read dataset
 df = pd.read_csv(f'{main_dir}/pattern-proj/sample_dataset.csv')
-df["body"] = df["body"].str[14:-4]
 print("Load dataset completed")
 
 # Load model

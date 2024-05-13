@@ -15,7 +15,7 @@ print(f"Completed importing frameworks")
 # Tara working directory
 working_dir = f"/tarafs/data/project/proj0183-ATS/finetune/lanta-finetune"
 project_dir = f"{working_dir}/pattern-proj"
-outputs_dir = f"{project_dir}/seallm2.5-thaisum"
+outputs_dir = f"{project_dir}/seallm2-thaisum"
 
 # Download tokenized dataset
 tokenized_datasets = load_from_disk(f'{project_dir}/causallm_preprocessed_thaisum.hf')
